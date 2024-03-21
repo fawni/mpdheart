@@ -1,0 +1,7 @@
+[mpd] # optional, uses default mpd values if not specified
+host = "0.0.0.0"
+port = 6600
+
+[lastfm] # after the first run, there will be an additional generated key `session_key`
+username = "nya" # required
+password = "awa" # required
