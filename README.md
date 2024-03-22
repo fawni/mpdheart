@@ -6,16 +6,16 @@ spread love around your library ♡
 
 ## Installation
 
-### Arch
+<!-- ### Arch -->
 
-```
-TODO
-```
+<!-- ``` -->
+<!-- TODO -->
+<!-- ``` -->
 
 ### crates.io
 
 ```
-TODO
+cargo install mpdheart
 ```
 
 ## Usage

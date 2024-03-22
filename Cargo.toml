@@ -1,7 +1,13 @@
 [package]
 name = "mpdheart"
+description = "spread love around your library ♡"
+authors = ["fawn <fawn@rinici.de>"]
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/fawni/mpdheart"
+categories = ["command-line-utilities"]
+keywords = ["mpd", "lastfm"]
 
 [dependencies]
 clap = { version = "4.5.3", features = ["derive"] }
