@@ -38,7 +38,7 @@ as simple as that!
 
 mpdheart can be configured by editing the configuration file at `~/.config/mpdheart/config.toml` or `$XDG_CONFIG_HOME/mpdheart/config.toml`
 
-if not found, mpdheart will attempt to write an empty config in that path, you need to at least edit the last.fm username and password to use mpdheart
+if the config is not found, it will attempt to write an empty config in that path, you need to at least edit the last.fm username and password to be able to un/love tracks
 
 after the first _successful_ run, the config will be lossly rewritten to add the last.fm session key, this means any comments will be lost. this only happens once
 
@@ -56,6 +56,6 @@ password = "awa" # required
 
 can also be found at [config/example.toml](config/example.toml)
 
-### License
+## License
 
 [Apache-2.0](LICENSE)
