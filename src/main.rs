@@ -31,6 +31,10 @@ struct Args {
     /// Unlove instead
     #[arg(short, long)]
     unlove: bool,
+
+    /// Get love status
+    #[arg(short, long)]
+    status: bool,
 }
 
 fn main() {
@@ -49,7 +53,13 @@ fn main() {
         err!("could not determine artist name");
     };
 
-    if args.unlove {
+    if args.status {
+        if lastfm::love_status(&name, &artist).unwrap() {
+            println!("{}", consts::LOVE_SYMBOL);
+        } else {
+            println!("{}", consts::UNLOVE_SYMBOL);
+        }
+    } else if args.unlove {
         unlove!(name, artist);
     } else {
         love!(name, artist);

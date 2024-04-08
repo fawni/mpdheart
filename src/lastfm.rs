@@ -9,10 +9,6 @@ use crate::config::{CONFIG, LASTFM_API_SESSION_KEY};
 use crate::consts::{LASTFM_API_KEY, LASTFM_API_ROOT, LASTFM_API_SECRET};
 use crate::{err, Error};
 
-fn hash(signature: &str) -> String {
-    format!("{:x}", md5::compute(signature))
-}
-
 #[derive(Deserialize)]
 struct SessionResponse {
     session: Session,
@@ -21,6 +17,17 @@ struct SessionResponse {
 #[derive(Deserialize)]
 struct Session {
     key: String,
+}
+
+#[derive(Deserialize)]
+struct TrackInfo {
+    track: Track,
+}
+
+#[derive(Deserialize)]
+struct Track {
+    #[serde(rename = "userloved")]
+    loved: String,
 }
 
 pub fn get_session_key() -> Result<String, Error> {
@@ -82,4 +89,41 @@ pub fn love(track_name: &str, track_artist: &str, love: bool) -> Result<(), Erro
     }
 
     Ok(())
+}
+
+pub fn love_status(track_name: &str, track_artist: &str) -> Result<bool, Error> {
+    let raw_sig = format!(
+        "api_key{}artist{}method{}track{}username{}{}",
+        LASTFM_API_KEY,
+        track_artist,
+        "track.getInfo",
+        track_name,
+        &CONFIG.lastfm_username(),
+        LASTFM_API_SECRET
+    );
+
+    let response = ureq::request("GET", LASTFM_API_ROOT)
+        .set("Content-Length", "0")
+        .set("User-Agent", "mpdheart")
+        .query("format", "json")
+        .query("method", "track.getInfo")
+        .query("track", track_name)
+        .query("artist", track_artist)
+        .query("username", &CONFIG.lastfm_username())
+        .query("api_key", LASTFM_API_KEY)
+        .query("api_sig", &hash(&raw_sig))
+        .call()?
+        .into_json::<TrackInfo>()?;
+
+    if response.track.loved.eq("1") {
+        Ok(true)
+    } else if response.track.loved.eq("0") {
+        Ok(false)
+    } else {
+        err!("unknown track loved status: {}", response.track.loved);
+    }
+}
+
+fn hash(signature: &str) -> String {
+    format!("{:x}", md5::compute(signature))
 }

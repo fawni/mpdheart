@@ -3,6 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+pub const LOVE_SYMBOL: char = '♥';
+pub const UNLOVE_SYMBOL: char = '♡';
+
 pub const MPD_DEFAULT_HOST: &str = "0.0.0.0";
 pub const MPD_DEFAULT_PORT: u16 = 6600;
 

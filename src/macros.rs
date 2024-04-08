@@ -6,18 +6,23 @@
 #[macro_export]
 macro_rules! err {
     ($($arg:tt)*) => {
-        ::std::eprintln!("\x1b[1;31merror\x1b[0;1m: {}", format!($($arg)*));
-        std::process::exit(1)
+        ::std::eprintln!("\x1b[1;31merror\x1b[0;1m: {}", ::std::format!($($arg)*));
+        ::std::process::exit(1)
     }
 }
 
 #[macro_export]
 macro_rules! love {
     ($name:ident, $artist:ident) => {
-        if let Err(e) = lastfm::love(&$name, &$artist, true) {
+        if let Err(e) = $crate::lastfm::love(&$name, &$artist, true) {
             $crate::err!("failed to love track, http status: {e}");
         } else {
-            ::std::println!("\x1b[31m♡ \x1b[0;1m{} \x1b[0;90m{}", $name, $artist)
+            ::std::println!(
+                "\x1b[31m{} \x1b[0;1m{} \x1b[0;90m{}",
+                $crate::consts::LOVE_SYMBOL,
+                $name,
+                $artist
+            )
         }
     };
 }
@@ -25,10 +30,15 @@ macro_rules! love {
 #[macro_export]
 macro_rules! unlove {
     ($name:ident, $artist:ident) => {
-        if let Err(e) = lastfm::love(&$name, &$artist, false) {
+        if let Err(e) = $crate::lastfm::love(&$name, &$artist, false) {
             $crate::err!("failed to unlove track, http status: {e}");
         } else {
-            ::std::println!("\x1b[31m❌\x1b[0;1m{} \x1b[0;90m{}", $name, $artist)
+            ::std::println!(
+                "\x1b[31m{} \x1b[0;1m{} \x1b[0;90m{}",
+                $crate::consts::UNLOVE_SYMBOL,
+                $name,
+                $artist
+            )
         }
     };
 }

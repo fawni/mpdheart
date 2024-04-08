@@ -32,7 +32,11 @@ to unlove:
 mpdheart -u
 ```
 
-as simple as that!
+to get the love status:
+
+```
+mpdheart -s
+```
 
 ## Configuration
 
