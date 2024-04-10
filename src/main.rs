@@ -54,7 +54,11 @@ fn main() {
     };
 
     if args.status {
-        if lastfm::love_status(&name, &artist).unwrap() {
+        let Ok(status) = lastfm::love_status(&name, &artist) else {
+            err!("failed to get track's love status");
+        };
+
+        if status {
             println!("{}", consts::LOVE_SYMBOL);
         } else {
             println!("{}", consts::UNLOVE_SYMBOL);
