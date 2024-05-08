@@ -28,13 +28,17 @@ const fn clap_style() -> Styles {
 #[derive(Parser)]
 #[clap(version, author, styles = clap_style())]
 struct Args {
-    /// Unlove instead
+    /// Unlove current track instead
     #[arg(short, long)]
     unlove: bool,
 
-    /// Get love status
+    /// Get current track's love status
     #[arg(short, long)]
     status: bool,
+
+    /// Block and append status changes to output
+    #[arg(short, long)]
+    follow: bool,
 }
 
 fn main() {
@@ -54,14 +58,26 @@ fn main() {
     };
 
     if args.status {
-        let Ok(status) = lastfm::love_status(&name, &artist) else {
-            err!("failed to get track's love status");
-        };
+        let mut last_status: Option<bool> = None;
+        loop {
+            let Ok(status) = lastfm::love_status(&name, &artist) else {
+                err!("failed to get track's love status");
+            };
 
-        if status {
-            println!("{}", consts::LOVE_SYMBOL);
-        } else {
-            println!("{}", consts::UNLOVE_SYMBOL);
+            if (last_status.is_some() && last_status.unwrap() != status) || last_status.is_none() {
+                if status {
+                    println!("{}", consts::LOVE_SYMBOL);
+                } else {
+                    println!("{}", consts::UNLOVE_SYMBOL);
+                }
+                last_status = Some(status);
+            }
+
+            if !args.follow {
+                break;
+            }
+
+            std::thread::sleep(std::time::Duration::from_millis(1000));
         }
     } else if args.unlove {
         unlove!(name, artist);
