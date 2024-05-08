@@ -43,19 +43,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let current_track = match mpd::current_track() {
-        Ok(track) => track,
-        Err(e) => {
-            err!("{e}");
-        }
-    };
-
-    let Some(name) = current_track.title else {
-        err!("could not determine track name");
-    };
-    let Some(artist) = current_track.artist else {
-        err!("could not determine artist name");
-    };
+    let (mut name, mut artist) = current();
 
     if args.status {
         let mut last_status: Option<bool> = None;
@@ -78,10 +66,29 @@ fn main() {
             }
 
             std::thread::sleep(std::time::Duration::from_millis(1000));
+            (name, artist) = current();
         }
     } else if args.unlove {
         unlove!(name, artist);
     } else {
         love!(name, artist);
     };
+}
+
+fn current() -> (String, String){
+    let current_track = match mpd::current_track() {
+        Ok(track) => track,
+        Err(e) => {
+            err!("{e}");
+        }
+    };
+
+    let Some(name) = current_track.title else {
+        err!("could not determine track name");
+    };
+    let Some(artist) = current_track.artist else {
+        err!("could not determine artist name");
+    };
+
+    (name, artist)
 }
