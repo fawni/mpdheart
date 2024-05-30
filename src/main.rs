@@ -49,6 +49,10 @@ fn main() {
         let mut last_status: Option<bool> = None;
         loop {
             let Ok(status) = lastfm::love_status(&name, &artist) else {
+                if args.follow {
+                    std::process::exit(1);
+                }
+
                 err!("failed to get track's love status");
             };
 
@@ -75,7 +79,7 @@ fn main() {
     };
 }
 
-fn current() -> (String, String){
+fn current() -> (String, String) {
     let current_track = match mpd::current_track() {
         Ok(track) => track,
         Err(e) => {
