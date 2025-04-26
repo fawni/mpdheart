@@ -41,17 +41,18 @@ pub fn get_session_key() -> Result<String, Error> {
         LASTFM_API_SECRET
     );
 
-    let response = ureq::request("POST", LASTFM_API_ROOT)
-        .set("Content-Length", "0")
-        .set("User-Agent", "mpdheart")
+    let response = ureq::get(LASTFM_API_ROOT)
+        .header("Content-Length", "0")
+        .header("User-Agent", "mpdheart")
         .query("format", "json")
         .query("method", method)
-        .query("username", &CONFIG.lastfm_username())
-        .query("password", &CONFIG.lastfm_password())
+        .query("username", CONFIG.lastfm_username())
+        .query("password", CONFIG.lastfm_password())
         .query("api_key", LASTFM_API_KEY)
-        .query("api_sig", &hash(&raw_sig))
+        .query("api_sig", hash(&raw_sig))
         .call()?
-        .into_json::<SessionResponse>()?;
+        .body_mut()
+        .read_json::<SessionResponse>()?;
 
     Ok(response.session.key)
 }
@@ -68,23 +69,23 @@ pub fn love(track_name: &str, track_artist: &str, love: bool) -> Result<(), Erro
         LASTFM_API_SECRET
     );
 
-    let response = ureq::request("POST", LASTFM_API_ROOT)
-        .set("Content-Length", "0")
-        .set("User-Agent", "mpdheart")
+    let mut response = ureq::post(LASTFM_API_ROOT)
+        .header("Content-Length", "0")
+        .header("User-Agent", "mpdheart")
         .query("format", "json")
         .query("method", method)
         .query("track", track_name)
         .query("artist", track_artist)
         .query("api_key", LASTFM_API_KEY)
-        .query("api_sig", &hash(&raw_sig))
-        .query("sk", &LASTFM_API_SESSION_KEY)
-        .call()?;
+        .query("api_sig", hash(&raw_sig))
+        .query("sk", &*LASTFM_API_SESSION_KEY)
+        .send_empty()?;
 
     if response.status() != 200 {
         err!(
             "failed to love track, http status: {} {}",
             response.status(),
-            response.status_text()
+            response.body_mut().read_to_string()?
         );
     }
 
@@ -102,18 +103,19 @@ pub fn love_status(track_name: &str, track_artist: &str) -> Result<bool, Error> 
         LASTFM_API_SECRET
     );
 
-    let response = ureq::request("GET", LASTFM_API_ROOT)
-        .set("Content-Length", "0")
-        .set("User-Agent", "mpdheart")
+    let response = ureq::get(LASTFM_API_ROOT)
+        .header("Content-Length", "0")
+        .header("User-Agent", "mpdheart")
         .query("format", "json")
         .query("method", "track.getInfo")
         .query("track", track_name)
         .query("artist", track_artist)
-        .query("username", &CONFIG.lastfm_username())
+        .query("username", CONFIG.lastfm_username())
         .query("api_key", LASTFM_API_KEY)
-        .query("api_sig", &hash(&raw_sig))
+        .query("api_sig", hash(&raw_sig))
         .call()?
-        .into_json::<TrackInfo>()?;
+        .body_mut()
+        .read_json::<TrackInfo>()?;
 
     if response.track.loved.eq("1") {
         Ok(true)
